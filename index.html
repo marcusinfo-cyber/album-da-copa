@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Álbum Copa 2026 — Controle de Figurinhas</title>
+<style>
+  :root{
+    --verde-capa: #0b3d2e;
+    --verde-capa2: #145c41;
+    --dourado: #c9a23c;
+    --dourado-claro: #e8cf8a;
+    --creme: #f6f1e4;
+    --creme2: #efe7d2;
+    --tinta: #1d1a14;
+    --tinta-suave: #4a4536;
+    --vermelho: #b3392c;
+    --azul-selo: #1f4e8c;
+    --verde-ok: #2f7d4f;
+    --sombra: 0 6px 18px rgba(20,15,5,.18);
+    --borda: #d8cba3;
+    --radius: 10px;
+    --serif: "Source Serif 4","Georgia",serif;
+    --display: "Bebas Neue","Oswald","Arial Narrow",sans-serif;
+    --mono: "JetBrains Mono","Courier New",monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--creme);
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(11,61,46,.04), transparent 45%),
+      radial-gradient(circle at 90% 10%, rgba(201,162,60,.07), transparent 40%);
+    color: var(--tinta);
+    font-family: var(--serif);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @font-face{
+    font-family: "Bebas Neue";
+    src: local("Bebas Neue");
+  }
+
+  /* ===================== HEADER / CAPA ===================== */
+  .capa{
+    background:
+      linear-gradient(160deg, var(--verde-capa) 0%, var(--verde-capa2) 55%, var(--verde-capa) 100%);
+    color: var(--creme);
+    padding: 28px 20px 34px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 6px solid var(--dourado);
+  }
+  .capa::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.025) 0 2px, transparent 2px 14px);
+    pointer-events:none;
+  }
+  .capa-inner{
+    max-width: 1180px;
+    margin: 0 auto;
+    position: relative;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .capa-titulo{
+    display:flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .selo-eyebrow{
+    font-family: var(--mono);
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: var(--dourado-claro);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .selo-eyebrow::before{
+    content:"⚽";
+  }
+  .capa-titulo h1{
+    font-family: var(--display);
+    font-weight: 400;
+    letter-spacing: .02em;
+    font-size: clamp(34px, 5vw, 56px);
+    margin: 0;
+    line-height: .95;
+    text-transform: uppercase;
+  }
+  .capa-titulo h1 span{ color: var(--dourado-claro); }
+  .capa-sub{
+    font-size: 14px;
+    color: rgba(246,241,228,.78);
+    max-width: 480px;
+    margin-top: 2px;
+  }
+
+  .progress-box{
+    background: rgba(0,0,0,.18);
+    border: 1px solid rgba(232,207,138,.35);
+    border-radius: var(--radius);
+    padding: 16px 22px;
+    min-width: 240px;
+    backdrop-filter: blur(2px);
+  }
+  .progress-box .num{
+    font-family: var(--display);
+    font-size: 42px;
+    line-height: 1;
+    color: var(--dourado-claro);
+  }
+  .progress-box .num small{ font-size: 18px; color: rgba(246,241,228,.7); font-family: var(--serif); }
+  .progress-box .label{
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: rgba(246,241,228,.6); margin-top: 2px;
+  }
+  .bar-track{
+    margin-top: 10px;
+    height: 8px;
+    border-radius: 5px;
+    background: rgba(255,255,255,.14);
+    overflow: hidden;
+  }
+  .bar-fill{
+    height: 100%;
+    background: linear-gradient(90deg, var(--dourado) 0%, var(--dourado-claro) 100%);
+    width: 0%;
+    transition: width .4s ease;
+  }
+
+  /* ===================== TOOLBAR ===================== */
+  .toolbar{
+    position: sticky; top:0; z-index: 50;
+    background: var(--creme2);
+    border-bottom: 1px solid var(--borda);
+    padding: 10px 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.05);
+  }
+  .toolbar-inner{
+    max-width: 1180px; margin:0 auto;
+    display:flex; align-items:center; gap:12px; flex-wrap: wrap;
+  }
+  .search-wrap{
+    position: relative;
+    flex: 1 1 240px;
+    min-width: 200px;
+  }
+  .search-wrap input{
+    width:100%;
+    font-family: var(--serif);
+    font-size: 14px;
+    padding: 9px 12px 9px 34px;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+    background: #fff;
+    color: var(--tinta);
+  }
+  .search-wrap input:focus{ outline: 2px solid var(--azul-selo); outline-offset: 1px; }
+  .search-wrap::before{
+    content:"🔎";
+    position:absolute; left:10px; top:50%; transform:translateY(-50%);
+    font-size: 13px; opacity:.6;
+  }
+  .filter-pills{ display:flex; gap:6px; flex-wrap: wrap; }
+  .pill{
+    font-family: var(--mono);
+    font-size: 11px; letter-spacing:.04em;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--borda);
+    background: #fff;
+    color: var(--tinta-suave);
+    cursor:pointer;
+    transition: all .15s ease;
+    white-space: nowrap;
+  }
+  .pill:hover{ border-color: var(--azul-selo); }
+  .pill.active{
+    background: var(--verde-capa);
+    border-color: var(--verde-capa);
+    color: var(--creme);
+  }
+  .toolbar-actions{ display:flex; gap:8px; margin-left:auto; }
+  .btn{
+    font-family: var(--serif);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+    background:#fff;
+    color: var(--tinta);
+    cursor:pointer;
+    display:inline-flex; align-items:center; gap:6px;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover{ box-shadow: var(--sombra); transform: translateY(-1px); }
+  .btn:active{ transform: translateY(0); }
+  .btn-primary{
+    background: var(--vermelho);
+    border-color: var(--vermelho);
+    color:#fff;
+  }
+  .btn-ghost{
+    background: transparent;
+  }
+
+  /* ===================== CONTAINER ===================== */
+  .wrap{ max-width: 1180px; margin: 0 auto; padding: 30px 20px 80px; }
+
+  .group-block{ margin-bottom: 34px; }
+  .group-head{
+    display:flex; align-items: baseline; gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--tinta);
+  }
+  .group-head .letra{
+    font-family: var(--display);
+    font-size: 30px;
+    color: var(--vermelho);
+    background: var(--dourado-claro);
+    width: 38px; height:38px;
+    border-radius: 6px;
+    display:flex; align-items:center; justify-content:center;
+    border: 2px solid var(--tinta);
+  }
+  .group-head .titulo-grupo{
+    font-family: var(--display);
+    font-size: 20px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--tinta);
+  }
+  .group-head .grupo-progress{
+    margin-left:auto;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--tinta-suave);
+  }
+
+  .teams-grid{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 760px){
+    .teams-grid{ grid-template-columns: 1fr; }
+  }
+
+  .team-card{
+    background:#fff;
+    border: 1px solid var(--borda);
+    border-radius: var(--radius);
+    overflow:hidden;
+    box-shadow: 0 1px 0 rgba(0,0,0,.02);
+  }
+  .team-head{
+    display:flex; align-items:center; gap:10px;
+    padding: 10px 14px;
+    background: var(--creme2);
+    border-bottom: 1px solid var(--borda);
+  }
+  .team-head .flag-chip{
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    background: var(--verde-capa);
+    color: var(--creme);
+    padding: 3px 7px;
+    border-radius: 4px;
+  }
+  .team-head .team-name{
+    font-weight: 600;
+    font-size: 14.5px;
+    flex:1;
+  }
+  .team-head .team-count{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--tinta-suave);
+  }
+
+  .stickers-grid{
+    display:grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 5px;
+    padding: 12px;
+  }
+  @media (max-width: 480px){
+    .stickers-grid{ grid-template-columns: repeat(5, 1fr); }
+  }
+
+  .sticker{
+    aspect-ratio: 1 / 1;
+    border: 1.5px dashed #b9ad84;
+    border-radius: 5px;
+    background: repeating-linear-gradient(135deg, #fdfbf4 0 6px, #f7f1df 6px 12px);
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--tinta-suave);
+    cursor:pointer;
+    user-select:none;
+    position: relative;
+    transition: transform .1s ease, box-shadow .1s ease;
+  }
+  .sticker:hover{ transform: translateY(-2px); box-shadow: 0 3px 8px rgba(0,0,0,.12); }
+  .sticker:active{ transform: translateY(0) scale(.95); }
+  .sticker.has{
+    border-style: solid;
+    border-color: var(--verde-ok);
+    background: linear-gradient(160deg, #eafaf0, #d9f3e2);
+    color: var(--verde-ok);
+  }
+  .sticker.has::after{
+    content:"✓";
+    position:absolute;
+    top:-6px; right:-6px;
+    width:16px; height:16px;
+    background: var(--verde-ok);
+    color:#fff;
+    border-radius:50%;
+    font-size: 10px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  }
+  .sticker.special{
+    border-color: var(--dourado);
+  }
+  .sticker.hidden-by-filter{ display:none; }
+
+  .special-section .team-head .flag-chip{ background: var(--vermelho); }
+
+  /* ===================== FAB / RELATÓRIO ===================== */
+  .fab-print{
+    position: fixed;
+    bottom: 22px; right: 22px;
+    z-index: 60;
+    background: var(--vermelho);
+    color:#fff;
+    border:none;
+    border-radius: 999px;
+    padding: 14px 22px;
+    font-family: var(--serif);
+    font-weight:700;
+    font-size: 14px;
+    box-shadow: 0 8px 20px rgba(179,57,44,.4);
+    cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+  }
+  .fab-print:hover{ transform: translateY(-2px); }
+
+  footer.rodape{
+    text-align:center;
+    padding: 30px 20px 50px;
+    color: var(--tinta-suave);
+    font-size: 12px;
+  }
+
+  /* ===================== TOAST ===================== */
+  .toast{
+    position: fixed; bottom: 90px; right: 22px;
+    background: var(--tinta); color:#fff;
+    padding: 10px 16px; border-radius: 8px;
+    font-size: 13px;
+    opacity:0; transform: translateY(8px);
+    transition: all .25s ease;
+    pointer-events:none;
+    z-index: 70;
+  }
+  .toast.show{ opacity:1; transform: translateY(0); }
+
+  /* ===================== RELATÓRIO IMPRIMÍVEL (escondido na tela) ===================== */
+  #relatorio{ display:none; }
+
+  @media print{
+    html, body{
+      height: auto !important;
+      margin:0 !important; padding:0 !important;
+      background: #fff !important;
+      overflow: hidden !important;
+    }
+    body > *:not(#relatorio){ display:none !important; }
+    #relatorio{
+      display:block !important;
+      position: static !important;
+      width:100%;
+      height: auto !important;
+    }
+    @page{ size: A4 landscape; margin: 8mm; }
+  }
+
+  .rel-page{
+    width: 281mm;
+    height: 190mm;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#111;
+    overflow: hidden;
+  }
+  .rel-titulo{
+    background: var(--verde-capa);
+    color:#fff;
+    padding: 6px 10px;
+    font-size: 15px;
+    font-weight:bold;
+    text-align:center;
+    margin-bottom: 6px;
+  }
+  .rel-cols{
+    column-count: 6;
+    column-gap: 8px;
+    height: 178mm;
+    column-fill: auto;
+  }
+  .rel-team{
+    break-inside: avoid;
+    margin-bottom: 7px;
+  }
+  .rel-team-head{
+    background: var(--azul-selo);
+    color:#fff;
+    font-size: 9.5px;
+    font-weight:bold;
+    padding: 2px 5px;
+  }
+  .rel-codes{
+    font-size: 9px;
+    padding: 2px 4px 0;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<header class="capa">
+  <div class="capa-inner">
+    <div class="capa-titulo">
+      <div class="selo-eyebrow">Controle de coleção</div>
+      <h1>Álbum <span>Copa 2026</span></h1>
+      <div class="capa-sub">Clique numa figurinha para marcar como colada. Seu progresso fica salvo neste navegador.</div>
+    </div>
+    <div class="progress-box">
+      <div class="num" id="contagem">0<small>/993</small></div>
+      <div class="label">figurinhas coladas</div>
+      <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Buscar seleção ou código (ex: BRA-5)">
+    </div>
+    <div class="filter-pills">
+      <button class="pill active" data-filter="todas">Todas</button>
+      <button class="pill" data-filter="faltam">Só faltando</button>
+      <button class="pill" data-filter="tenho">Só que tenho</button>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn btn-ghost" id="btnLimpar">Limpar tudo</button>
+      <button class="btn btn-primary" id="btnRelatorio">🖨️ Relatório p/ imprimir</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap" id="albumRoot"></main>
+
+<footer class="rodape">Feito para acompanhar a coleção do álbum Panini Copa do Mundo FIFA 2026™ · uso pessoal</footer>
+
+<div class="toast" id="toast"></div>
+
+<div id="relatorio"></div>
+
+<script id="album-data" type="application/json">
+{"groups": [{"letter": "A", "teams": [{"code": "MEX", "name": "M\u00e9xico", "count": 20}, {"code": "RSA", "name": "\u00c1frica do Sul", "count": 20}, {"code": "KOR", "name": "Cor\u00e9ia do Sul", "count": 20}, {"code": "CZE", "name": "Rep. Tcheca", "count": 20}]}, {"letter": "B", "teams": [{"code": "CAN", "name": "Canad\u00e1", "count": 20}, {"code": "BIH", "name": "B\u00f3snia", "count": 20}, {"code": "QAT", "name": "Catar", "count": 20}, {"code": "SUI", "name": "Su\u00ed\u00e7a", "count": 20}]}, {"letter": "C", "teams": [{"code": "BRA", "name": "Brasil", "count": 20}, {"code": "MAR", "name": "Marrocos", "count": 20}, {"code": "HAI", "name": "Haiti", "count": 20}, {"code": "SCO", "name": "Esc\u00f3cia", "count": 20}]}, {"letter": "D", "teams": [{"code": "USA", "name": "Estados Unidos", "count": 20}, {"code": "PAR", "name": "Paraguai", "count": 20}, {"code": "AUS", "name": "Austr\u00e1lia", "count": 20}, {"code": "TUR", "name": "Turquia", "count": 20}]}, {"letter": "E", "teams": [{"code": "GER", "name": "Alemanha", "count": 20}, {"code": "CUW", "name": "Cura\u00e7ao", "count": 20}, {"code": "CIV", "name": "Costa do Marfim", "count": 20}, {"code": "ECU", "name": "Equador", "count": 20}]}, {"letter": "F", "teams": [{"code": "NED", "name": "Holanda", "count": 20}, {"code": "JPN", "name": "Jap\u00e3o", "count": 20}, {"code": "SWE", "name": "Su\u00e9cia", "count": 20}, {"code": "TUN", "name": "Tun\u00edsia", "count": 20}]}, {"letter": "G", "teams": [{"code": "BEL", "name": "B\u00e9lgica", "count": 20}, {"code": "EGY", "name": "Egito", "count": 20}, {"code": "IRN", "name": "Ir\u00e3", "count": 20}, {"code": "NZL", "name": "Nova Zel\u00e2ndia", "count": 20}]}, {"letter": "H", "teams": [{"code": "ESP", "name": "Espanha", "count": 20}, {"code": "CPV", "name": "Cabo Verde", "count": 20}, {"code": "KSA", "name": "Ar\u00e1bia Saudita", "count": 20}, {"code": "URU", "name": "Uruguai", "count": 20}]}, {"letter": "I", "teams": [{"code": "FRA", "name": "Fran\u00e7a", "count": 20}, {"code": "SEN", "name": "Senegal", "count": 20}, {"code": "IRQ", "name": "Iraque", "count": 20}, {"code": "NOR", "name": "Noruega", "count": 20}]}, {"letter": "J", "teams": [{"code": "ARG", "name": "Argentina", "count": 20}, {"code": "ALG", "name": "Alg\u00e9ria", "count": 20}, {"code": "AUT", "name": "\u00c1ustria", "count": 20}, {"code": "JOR", "name": "Jord\u00e2nia", "count": 20}]}, {"letter": "K", "teams": [{"code": "POR", "name": "Portugal", "count": 20}, {"code": "COD", "name": "Congo", "count": 20}, {"code": "UZB", "name": "Uzbequist\u00e3o", "count": 20}, {"code": "COL", "name": "Col\u00f4mbia", "count": 20}]}, {"letter": "L", "teams": [{"code": "ENG", "name": "Inglaterra", "count": 20}, {"code": "CRO", "name": "Cro\u00e1cia", "count": 20}, {"code": "GHA", "name": "Gana", "count": 20}, {"code": "PAN", "name": "Panam\u00e1", "count": 20}]}], "preMarked": ["MEX-1", "MEX-4", "MEX-6", "MEX-12", "MEX-13", "MEX-15", "MEX-17", "RSA-2", "RSA-5", "RSA-6", "RSA-7", "KOR-1", "KOR-7", "KOR-8", "KOR-13", "CZE-4", "CZE-7", "CZE-8", "CZE-9", "CZE-10", "CZE-11", "CZE-13", "CZE-14", "CZE-15", "CZE-19", "CAN-5", "CAN-7", "CAN-13", "CAN-14", "BIH-1", "BIH-2", "BIH-5", "BIH-6", "BIH-7", "BIH-8", "BIH-12", "BIH-13", "BIH-14", "BIH-15", "BIH-20", "QAT-1", "QAT-2", "QAT-4", "QAT-6", "QAT-9", "QAT-10", "QAT-11", "QAT-13", "QAT-14", "QAT-15", "QAT-16", "QAT-19", "QAT-20", "SUI-1", "SUI-8", "SUI-9", "SUI-10", "SUI-11", "SUI-12", "SUI-13", "SUI-14", "SUI-15", "SUI-16", "SUI-19", "SUI-20", "BRA-5", "BRA-12", "BRA-13", "BRA-20", "MAR-1", "MAR-2", "MAR-3", "MAR-6", "MAR-7", "MAR-10", "MAR-13", "MAR-15", "MAR-17", "MAR-19", "HAI-2", "HAI-3", "HAI-5", "HAI-7", "HAI-10", "HAI-11", "HAI-12", "HAI-16", "HAI-17", "HAI-20", "SCO-1", "SCO-2", "SCO-5", "SCO-7", "SCO-8", "SCO-13", "SCO-14", "SCO-19", "USA-1", "USA-3", "USA-5", "USA-12", "USA-13", "USA-14", "USA-15", "USA-16", "USA-17", "USA-18", "USA-20", "PAR-2", "PAR-5", "PAR-6", "PAR-9", "PAR-13", "PAR-14", "PAR-17", "AUS-4", "AUS-6", "AUS-8", "AUS-10", "AUS-12", "TUR-11", "TUR-12", "TUR-13", "TUR-14", "TUR-16", "TUR-17", "TUR-18", "TUR-20", "GER-1", "GER-8", "GER-9", "GER-11", "GER-12", "GER-13", "GER-14", "GER-17", "GER-19", "CUW-2", "CUW-4", "CUW-5", "CUW-9", "CUW-12", "CUW-14", "CUW-16", "CUW-18", "CIV-2", "CIV-10", "CIV-13", "CIV-17", "CIV-18", "CIV-19", "CIV-20", "ECU-1", "ECU-4", "ECU-6", "ECU-10", "ECU-13", "ECU-15", "ECU-19", "NED-4", "NED-14", "NED-17", "NED-19", "NED-20", "JPN-3", "JPN-4", "JPN-5", "JPN-6", "JPN-7", "JPN-10", "JPN-11", "JPN-12", "JPN-13", "JPN-15", "JPN-16", "JPN-20", "SWE-2", "SWE-3", "SWE-4", "SWE-6", "SWE-7", "SWE-8", "SWE-9", "SWE-11", "SWE-13", "SWE-15", "TUN-1", "TUN-4", "TUN-8", "TUN-12", "TUN-13", "TUN-14", "TUN-17", "TUN-18", "TUN-20", "BEL-3", "BEL-6", "BEL-8", "BEL-9", "BEL-10", "BEL-15", "BEL-16", "BEL-17", "BEL-20", "EGY-9", "EGY-11", "EGY-16", "EGY-17", "EGY-20", "IRN-2", "IRN-4", "IRN-5", "IRN-8", "IRN-9", "IRN-12", "IRN-13", "IRN-17", "NZL-3", "NZL-7", "NZL-11", "NZL-13", "NZL-16", "ESP-4", "ESP-5", "ESP-7", "ESP-14", "ESP-15", "ESP-18", "ESP-19", "CPV-1", "CPV-2", "CPV-3", "CPV-4", "CPV-5", "CPV-6", "CPV-7", "CPV-9", "CPV-10", "CPV-11", "CPV-12", "CPV-13", "CPV-14", "CPV-15", "CPV-17", "CPV-19", "CPV-20", "KSA-8", "KSA-12", "KSA-15", "KSA-17", "KSA-18", "KSA-19", "URU-5", "URU-7", "URU-9", "URU-10", "URU-11", "URU-12", "URU-14", "URU-15", "URU-16", "URU-17", "URU-18", "URU-19", "URU-20", "FRA-3", "FRA-7", "FRA-8", "FRA-9", "FRA-12", "FRA-14", "FRA-16", "SEN-1", "SEN-4", "SEN-5", "SEN-7", "SEN-8", "SEN-11", "SEN-13", "SEN-18", "IRQ-1", "IRQ-4", "IRQ-9", "IRQ-13", "IRQ-14", "IRQ-16", "IRQ-17", "IRQ-18", "NOR-2", "NOR-4", "NOR-5", "NOR-6", "NOR-8", "NOR-10", "NOR-12", "NOR-15", "NOR-16", "NOR-17", "NOR-20", "ARG-3", "ARG-10", "ARG-13", "ARG-17", "ARG-18", "ALG-2", "ALG-6", "ALG-9", "ALG-10", "ALG-13", "ALG-14", "ALG-15", "ALG-19", "AUT-5", "AUT-6", "AUT-8", "AUT-10", "AUT-11", "AUT-13", "AUT-14", "AUT-15", "AUT-16", "AUT-18", "AUT-20", "JOR-2", "JOR-3", "JOR-4", "JOR-7", "JOR-8", "JOR-10", "JOR-11", "JOR-12", "JOR-15", "JOR-16", "JOR-17", "JOR-19", "JOR-20", "POR-1", "POR-4", "POR-6", "POR-9", "POR-10", "POR-14", "POR-17", "POR-18", "COD-1", "COD-5", "COD-7", "COD-8", "COD-13", "COD-15", "COD-17", "UZB-2", "UZB-3", "UZB-4", "UZB-6", "UZB-8", "UZB-9", "UZB-12", "UZB-13", "UZB-18", "UZB-19", "UZB-20", "COL-2", "COL-4", "COL-5", "COL-6", "COL-8", "COL-10", "COL-11", "COL-16", "COL-18", "COL-19", "COL-20", "ENG-2", "ENG-8", "ENG-9", "ENG-11", "ENG-13", "ENG-16", "ENG-18", "CRO-2", "CRO-6", "CRO-15", "CRO-17", "CRO-19", "GHA-2", "GHA-4", "GHA-6", "GHA-8", "GHA-9", "GHA-10", "GHA-12", "GHA-13", "GHA-15", "GHA-17", "PAN-3", "PAN-4", "PAN-5", "PAN-7", "PAN-8", "PAN-9", "PAN-12", "PAN-14", "PAN-16", "PAN-17", "PAN-18", "PAN-19", "FWC-9", "FWC-10", "FWC-13", "FWC-16", "FWC-18", "FWC-19"], "fwc": {"name": "FIFA World Cup History", "count": 19}, "cc": {"name": "Figurinhas Coca-Cola", "count": 14}}
+
+</script>
+
+<script>
+(function(){
+  const DATA = JSON.parse(document.getElementById('album-data').textContent);
+  const STORAGE_KEY = 'album_copa2026_v1';
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw) return new Set(JSON.parse(raw));
+    }catch(e){}
+    // primeira vez: usar pre-marcados
+    return new Set(DATA.preMarked);
+  }
+  let owned = loadState();
+  let firstRun = !localStorage.getItem(STORAGE_KEY);
+
+  function saveState(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(owned)));
+  }
+
+  function allCodes(){
+    const list = [];
+    DATA.groups.forEach(g => g.teams.forEach(t => {
+      for(let n=1;n<=t.count;n++) list.push(`${t.code}-${n}`);
+    }));
+    for(let n=1;n<=DATA.fwc.count;n++) list.push(`FWC-${n}`);
+    for(let n=1;n<=DATA.cc.count;n++) list.push(`CC-${n}`);
+    return list;
+  }
+  const TOTAL = allCodes().length;
+
+  function updateProgress(){
+    const owned_total = Array.from(owned).filter(c => allCodesSet.has(c)).length;
+    document.getElementById('contagem').innerHTML = `${owned_total}<small>/${TOTAL}</small>`;
+    document.getElementById('barFill').style.width = (owned_total/TOTAL*100).toFixed(1) + '%';
+  }
+  const allCodesSet = new Set(allCodes());
+
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast._tm);
+    toast._tm = setTimeout(()=>t.classList.remove('show'), 1800);
+  }
+
+  // ===== Render =====
+  const root = document.getElementById('albumRoot');
+
+  function buildStickerCell(code, label){
+    const div = document.createElement('div');
+    div.className = 'sticker';
+    div.dataset.code = code;
+    div.textContent = label;
+    if(owned.has(code)) div.classList.add('has');
+    div.addEventListener('click', () => {
+      if(owned.has(code)){ owned.delete(code); div.classList.remove('has'); }
+      else { owned.add(code); div.classList.add('has'); }
+      saveState();
+      updateProgress();
+      updateGroupCounters();
+      applyFilters();
+    });
+    return div;
+  }
+
+  function buildTeamCard(team){
+    const card = document.createElement('div');
+    card.className = 'team-card';
+    card.dataset.teamCode = team.code;
+    card.dataset.teamName = team.name.toLowerCase();
+
+    const head = document.createElement('div');
+    head.className = 'team-head';
+    head.innerHTML = `<span class="flag-chip">${team.code}</span><span class="team-name">${team.name}</span><span class="team-count" data-count-for="${team.code}"></span>`;
+    card.appendChild(head);
+
+    const grid = document.createElement('div');
+    grid.className = 'stickers-grid';
+    for(let n=1;n<=team.count;n++){
+      const code = `${team.code}-${n}`;
+      grid.appendChild(buildStickerCell(code, n));
+    }
+    card.appendChild(grid);
+    return card;
+  }
+
+  DATA.groups.forEach(group => {
+    const block = document.createElement('section');
+    block.className = 'group-block';
+
+    const head = document.createElement('div');
+    head.className = 'group-head';
+    head.innerHTML = `<div class="letra">${group.letter}</div><div class="titulo-grupo">Grupo ${group.letter}</div><div class="grupo-progress" data-group-progress="${group.letter}"></div>`;
+    block.appendChild(head);
+
+    const grid = document.createElement('div');
+    grid.className = 'teams-grid';
+    group.teams.forEach(team => grid.appendChild(buildTeamCard(team)));
+    block.appendChild(grid);
+
+    root.appendChild(block);
+  });
+
+  // Secao especial: FWC + CC
+  const specialBlock = document.createElement('section');
+  specialBlock.className = 'group-block special-section';
+  specialBlock.innerHTML = `<div class="group-head"><div class="letra">★</div><div class="titulo-grupo">Especiais</div><div class="grupo-progress" data-group-progress="ESPECIAIS"></div></div>`;
+  const specialGrid = document.createElement('div');
+  specialGrid.className = 'teams-grid';
+
+  const fwcCard = document.createElement('div');
+  fwcCard.className = 'team-card';
+  fwcCard.dataset.teamCode = 'FWC';
+  fwcCard.dataset.teamName = DATA.fwc.name.toLowerCase();
+  fwcCard.innerHTML = `<div class="team-head"><span class="flag-chip">FWC</span><span class="team-name">${DATA.fwc.name}</span><span class="team-count" data-count-for="FWC"></span></div>`;
+  const fwcGrid = document.createElement('div');
+  fwcGrid.className = 'stickers-grid';
+  for(let n=1;n<=DATA.fwc.count;n++){
+    const cell = buildStickerCell(`FWC-${n}`, n);
+    cell.classList.add('special');
+    fwcGrid.appendChild(cell);
+  }
+  fwcCard.appendChild(fwcGrid);
+  specialGrid.appendChild(fwcCard);
+
+  const ccCard = document.createElement('div');
+  ccCard.className = 'team-card';
+  ccCard.dataset.teamCode = 'CC';
+  ccCard.dataset.teamName = DATA.cc.name.toLowerCase();
+  ccCard.innerHTML = `<div class="team-head"><span class="flag-chip">CC</span><span class="team-name">${DATA.cc.name}</span><span class="team-count" data-count-for="CC"></span></div>`;
+  const ccGrid = document.createElement('div');
+  ccGrid.className = 'stickers-grid';
+  for(let n=1;n<=DATA.cc.count;n++){
+    const cell = buildStickerCell(`CC-${n}`, n);
+    cell.classList.add('special');
+    ccGrid.appendChild(cell);
+  }
+  ccCard.appendChild(ccGrid);
+  specialGrid.appendChild(ccCard);
+
+  specialBlock.appendChild(specialGrid);
+  root.appendChild(specialBlock);
+
+  // ===== Contadores por time / grupo =====
+  function updateGroupCounters(){
+    DATA.groups.forEach(group => {
+      let have = 0, total = 0;
+      group.teams.forEach(team => {
+        let h=0;
+        for(let n=1;n<=team.count;n++){ total++; if(owned.has(`${team.code}-${n}`)){h++; have++;} }
+        const elT = document.querySelector(`[data-count-for="${team.code}"]`);
+        if(elT) elT.textContent = `${h}/${team.count}`;
+      });
+      const elG = document.querySelector(`[data-group-progress="${group.letter}"]`);
+      if(elG) elG.textContent = `${have}/${total}`;
+    });
+    // especiais
+    let hFwc=0; for(let n=1;n<=DATA.fwc.count;n++) if(owned.has(`FWC-${n}`)) hFwc++;
+    let hCc=0; for(let n=1;n<=DATA.cc.count;n++) if(owned.has(`CC-${n}`)) hCc++;
+    const elFwc = document.querySelector(`[data-count-for="FWC"]`);
+    if(elFwc) elFwc.textContent = `${hFwc}/${DATA.fwc.count}`;
+    const elCc = document.querySelector(`[data-count-for="CC"]`);
+    if(elCc) elCc.textContent = `${hCc}/${DATA.cc.count}`;
+    const elEsp = document.querySelector(`[data-group-progress="ESPECIAIS"]`);
+    if(elEsp) elEsp.textContent = `${hFwc+hCc}/${DATA.fwc.count+DATA.cc.count}`;
+  }
+
+  // ===== Filtros =====
+  let currentFilter = 'todas';
+  let currentSearch = '';
+
+  function applyFilters(){
+    document.querySelectorAll('.team-card').forEach(card => {
+      const teamName = card.dataset.teamName;
+      const teamCode = card.dataset.teamCode.toLowerCase();
+      const matchesSearch = !currentSearch ||
+        teamName.includes(currentSearch) ||
+        teamCode.includes(currentSearch);
+
+      let anyVisible = false;
+      card.querySelectorAll('.sticker').forEach(st => {
+        const code = st.dataset.code.toLowerCase();
+        const has = owned.has(st.dataset.code);
+        let showByFilter = true;
+        if(currentFilter === 'faltam') showByFilter = !has;
+        if(currentFilter === 'tenho') showByFilter = has;
+
+        let showBySearch = matchesSearch || code.includes(currentSearch);
+
+        const show = showByFilter && showBySearch;
+        st.classList.toggle('hidden-by-filter', !show);
+        if(show) anyVisible = true;
+      });
+      card.style.display = anyVisible ? '' : 'none';
+    });
+
+    document.querySelectorAll('.group-block').forEach(block => {
+      const visibleCards = Array.from(block.querySelectorAll('.team-card')).some(c => c.style.display !== 'none');
+      block.style.display = visibleCards ? '' : 'none';
+    });
+  }
+
+  document.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+      currentFilter = p.dataset.filter;
+      applyFilters();
+    });
+  });
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    currentSearch = e.target.value.trim().toLowerCase();
+    applyFilters();
+  });
+
+  document.getElementById('btnLimpar').addEventListener('click', () => {
+    if(confirm('Tem certeza que quer apagar TODAS as marcações? Essa ação não pode ser desfeita.')){
+      owned = new Set();
+      saveState();
+      document.querySelectorAll('.sticker').forEach(s => s.classList.remove('has'));
+      updateProgress();
+      updateGroupCounters();
+      toast('Tudo limpo. Comece sua coleção do zero!');
+    }
+  });
+
+  // ===== Relatório de impressão =====
+  function buildRelatorio(){
+    const container = document.getElementById('relatorio');
+    container.innerHTML = '';
+
+    const faltantes = []; // {header, codes:[labels]}
+    DATA.groups.forEach(g => g.teams.forEach(team => {
+      const codes = [];
+      for(let n=1;n<=team.count;n++){
+        const code = `${team.code}-${n}`;
+        if(!owned.has(code)) codes.push(`${team.code}${n}`);
+      }
+      if(codes.length) faltantes.push({header:`${team.name} (${team.code})`, codes});
+    }));
+    {
+      const codes = [];
+      for(let n=1;n<=DATA.fwc.count;n++){ if(!owned.has(`FWC-${n}`)) codes.push(`FWC${n}`); }
+      if(codes.length) faltantes.push({header:DATA.fwc.name, codes});
+    }
+    {
+      const codes = [];
+      for(let n=1;n<=DATA.cc.count;n++){ if(!owned.has(`CC-${n}`)) codes.push(`CC${n}`); }
+      if(codes.length) faltantes.push({header:DATA.cc.name, codes});
+    }
+
+    const totalFaltam = faltantes.reduce((a,b)=>a+b.codes.length,0);
+    const totalTenho = TOTAL - totalFaltam;
+    const dataStr = new Date().toLocaleDateString('pt-BR');
+
+    const page = document.createElement('div');
+    page.className = 'rel-page';
+
+    const titulo = document.createElement('div');
+    titulo.className = 'rel-titulo';
+    titulo.textContent = `FIGURINHAS QUE FALTAM — ÁLBUM COPA 2026  (${totalFaltam} de ${TOTAL}  |  você já tem ${totalTenho})  •  Gerado em ${dataStr}`;
+    page.appendChild(titulo);
+
+    const cols = document.createElement('div');
+    cols.className = 'rel-cols';
+
+    faltantes.forEach(item => {
+      const teamDiv = document.createElement('div');
+      teamDiv.className = 'rel-team';
+      const h = document.createElement('div');
+      h.className = 'rel-team-head';
+      h.textContent = `${item.header}  (${item.codes.length})`;
+      teamDiv.appendChild(h);
+      const c = document.createElement('div');
+      c.className = 'rel-codes';
+      c.textContent = item.codes.join('  ');
+      teamDiv.appendChild(c);
+      cols.appendChild(teamDiv);
+    });
+
+    page.appendChild(cols);
+    container.appendChild(page);
+  }
+
+  document.getElementById('btnRelatorio').addEventListener('click', () => {
+    if(TOTAL - Array.from(owned).filter(c=>allCodesSet.has(c)).length === 0){
+      toast('Você já tem todas as figurinhas! 🎉');
+      return;
+    }
+    buildRelatorio();
+    setTimeout(() => window.print(), 80);
+  });
+
+  // ===== Init =====
+  updateProgress();
+  updateGroupCounters();
+  applyFilters();
+  if(firstRun && owned.size > 0){
+    saveState();
+    toast(`Carregamos ${owned.size} figurinhas que você já tinha marcado!`);
+  }
+})();
+</script>
+
+</body>
+</html>
