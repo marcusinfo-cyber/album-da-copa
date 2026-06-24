@@ -4,7 +4,9 @@ const KEY = 'album_copa2026_familia';
 
 module.exports = async function handler(req, res) {
   if (req.method === 'GET') {
-    const owned = (await kv.get(KEY)) || [];
+    const stored = await kv.get(KEY);
+    // null = banco ainda não foi inicializado nesta família; diferente de [] (zerado de propósito)
+    const owned = stored === null || stored === undefined ? null : stored;
     res.status(200).json({ owned, updatedAt: Date.now() });
     return;
   }
