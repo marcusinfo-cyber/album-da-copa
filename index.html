@@ -448,7 +448,7 @@
     <div class="capa-titulo">
       <div class="selo-eyebrow">Controle de coleção</div>
       <h1>Álbum <span>Copa 2026</span></h1>
-      <div class="capa-sub">Clique numa figurinha para marcar como colada. Seu progresso fica salvo neste navegador.</div>
+      <div class="capa-sub">Clique numa figurinha para marcar como colada. Progresso compartilhado entre todos os dispositivos. <span id="syncStatus" style="opacity:.8"></span></div>
     </div>
     <div class="progress-box">
       <div class="num" id="contagem">0<small>/993</small></div>
@@ -493,7 +493,7 @@
   const DATA = JSON.parse(document.getElementById('album-data').textContent);
   const STORAGE_KEY = 'album_copa2026_v1';
 
-  function loadState(){
+  function loadLocalState(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
       if(raw) return new Set(JSON.parse(raw));
@@ -501,11 +501,58 @@
     // primeira vez: usar pre-marcados
     return new Set(DATA.preMarked);
   }
-  let owned = loadState();
+  let owned = loadLocalState();
   let firstRun = !localStorage.getItem(STORAGE_KEY);
 
-  function saveState(){
+  function saveLocal(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(owned)));
+  }
+
+  function setSyncStatus(msg){
+    const el = document.getElementById('syncStatus');
+    if(el) el.textContent = msg;
+  }
+
+  let saveTimer = null;
+  function saveState(){
+    saveLocal();
+    setSyncStatus('· salvando…');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      try{
+        await fetch('/api/state', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ owned: Array.from(owned) })
+        });
+        setSyncStatus('· sincronizado ✓');
+      }catch(e){
+        setSyncStatus('· offline (salvo só neste aparelho)');
+      }
+    }, 400);
+  }
+
+  async function syncFromServer(){
+    try{
+      const r = await fetch('/api/state');
+      if(!r.ok) throw new Error('bad response');
+      const data = await r.json();
+      owned = new Set(data.owned || []);
+      saveLocal();
+      renderOwnedState();
+      setSyncStatus('· sincronizado ✓');
+    }catch(e){
+      setSyncStatus('· offline (usando dados deste aparelho)');
+    }
+  }
+
+  function renderOwnedState(){
+    document.querySelectorAll('.sticker').forEach(st => {
+      st.classList.toggle('has', owned.has(st.dataset.code));
+    });
+    updateProgress();
+    updateGroupCounters();
+    applyFilters();
   }
 
   function allCodes(){
@@ -788,9 +835,14 @@
   updateGroupCounters();
   applyFilters();
   if(firstRun && owned.size > 0){
-    saveState();
+    saveLocal();
     toast(`Carregamos ${owned.size} figurinhas que você já tinha marcado!`);
   }
+
+  // Busca o estado compartilhado do servidor ao abrir e a cada 8s
+  syncFromServer();
+  setInterval(syncFromServer, 8000);
+  window.addEventListener('focus', syncFromServer);
 })();
 </script>
 
