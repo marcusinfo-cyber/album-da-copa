@@ -1,0 +1,3 @@
+__pycache__/
+*.pyc
+dental_system/dental_system.db
