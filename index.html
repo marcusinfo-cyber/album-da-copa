@@ -453,6 +453,7 @@
     <div class="progress-box">
       <div class="num" id="contagem">0<small>/993</small></div>
       <div class="label">figurinhas coladas</div>
+      <div class="label" id="faltamLabel" style="color:var(--dourado-claro); margin-top:2px;"></div>
       <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
     </div>
   </div>
@@ -576,6 +577,8 @@
     const owned_total = Array.from(owned).filter(c => allCodesSet.has(c)).length;
     document.getElementById('contagem').innerHTML = `${owned_total}<small>/${TOTAL}</small>`;
     document.getElementById('barFill').style.width = (owned_total/TOTAL*100).toFixed(1) + '%';
+    const faltam = TOTAL - owned_total;
+    document.getElementById('faltamLabel').textContent = faltam > 0 ? `Faltam ${faltam}` : 'Álbum completo! 🎉';
   }
   const allCodesSet = new Set(allCodes());
 
