@@ -411,34 +411,51 @@
   .rel-titulo{
     background: var(--verde-capa);
     color:#fff;
-    padding: 6px 10px;
-    font-size: 15px;
+    padding: 7px 10px;
+    font-size: 16px;
     font-weight:bold;
     text-align:center;
-    margin-bottom: 6px;
+    margin-bottom: 7px;
+    border-radius: 4px;
   }
   .rel-cols{
     column-count: 6;
-    column-gap: 8px;
-    height: 178mm;
+    column-gap: 9px;
+    height: 176mm;
     column-fill: auto;
   }
   .rel-team{
     break-inside: avoid;
-    margin-bottom: 7px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #00000014;
   }
   .rel-team-head{
-    background: var(--azul-selo);
     color:#fff;
-    font-size: 9.5px;
+    font-size: 10.5px;
     font-weight:bold;
-    padding: 2px 5px;
+    padding: 3px 6px;
+    letter-spacing: .01em;
   }
   .rel-codes{
-    font-size: 9px;
-    padding: 2px 4px 0;
-    line-height: 1.5;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 5px 2px;
+    line-height: 1.65;
+    background: #00000007;
   }
+
+  /* Tamanhos maiores quando faltam poucas figurinhas (continua cabendo em 1 folha) */
+  .rel-page.size-lg .rel-cols{ column-count: 4; }
+  .rel-page.size-lg .rel-team-head{ font-size: 14px; padding: 5px 9px; }
+  .rel-page.size-lg .rel-codes{ font-size: 13.5px; line-height: 1.8; padding: 5px 7px 4px; }
+  .rel-page.size-lg .rel-titulo{ font-size: 19px; padding: 9px 10px; }
+
+  .rel-page.size-md .rel-cols{ column-count: 5; }
+  .rel-page.size-md .rel-team-head{ font-size: 12px; padding: 4px 7px; }
+  .rel-page.size-md .rel-codes{ font-size: 11.5px; line-height: 1.7; padding: 4px 6px 3px; }
+  .rel-page.size-md .rel-titulo{ font-size: 17px; }
 </style>
 </head>
 <body>
@@ -777,24 +794,27 @@
     const container = document.getElementById('relatorio');
     container.innerHTML = '';
 
-    const faltantes = []; // {header, codes:[labels]}
-    DATA.groups.forEach(g => g.teams.forEach(team => {
+    const PALETTE = ['#1f4e8c','#b3392c','#2f7d4f','#8a4fae','#c9762a','#1f8c8c','#6b5fc9','#a3367e','#3c7a1f','#c98c1f','#3c5fc9','#7a2f9d'];
+    const SPECIAL_COLOR = '#0b3d2e';
+
+    const faltantes = []; // {header, codes:[labels], color}
+    DATA.groups.forEach((g, gi) => g.teams.forEach(team => {
       const codes = [];
       for(let n=1;n<=team.count;n++){
         const code = `${team.code}-${n}`;
         if(!owned.has(code)) codes.push(`${team.code}${n}`);
       }
-      if(codes.length) faltantes.push({header:`${team.name} (${team.code})`, codes});
+      if(codes.length) faltantes.push({header:`${team.name} (${team.code})`, codes, color: PALETTE[gi % PALETTE.length]});
     }));
     {
       const codes = [];
       for(let n=1;n<=DATA.fwc.count;n++){ if(!owned.has(`FWC-${n}`)) codes.push(`FWC${n}`); }
-      if(codes.length) faltantes.push({header:DATA.fwc.name, codes});
+      if(codes.length) faltantes.push({header:DATA.fwc.name, codes, color: SPECIAL_COLOR});
     }
     {
       const codes = [];
       for(let n=1;n<=DATA.cc.count;n++){ if(!owned.has(`CC-${n}`)) codes.push(`CC${n}`); }
-      if(codes.length) faltantes.push({header:DATA.cc.name, codes});
+      if(codes.length) faltantes.push({header:DATA.cc.name, codes, color: SPECIAL_COLOR});
     }
 
     const totalFaltam = faltantes.reduce((a,b)=>a+b.codes.length,0);
@@ -803,6 +823,8 @@
 
     const page = document.createElement('div');
     page.className = 'rel-page';
+    if(totalFaltam <= 150) page.classList.add('size-lg');
+    else if(totalFaltam <= 350) page.classList.add('size-md');
 
     const titulo = document.createElement('div');
     titulo.className = 'rel-titulo';
@@ -815,12 +837,15 @@
     faltantes.forEach(item => {
       const teamDiv = document.createElement('div');
       teamDiv.className = 'rel-team';
+      teamDiv.style.borderColor = item.color + '55';
       const h = document.createElement('div');
       h.className = 'rel-team-head';
+      h.style.background = item.color;
       h.textContent = `${item.header}  (${item.codes.length})`;
       teamDiv.appendChild(h);
       const c = document.createElement('div');
       c.className = 'rel-codes';
+      c.style.color = item.color;
       c.textContent = item.codes.join('  ');
       teamDiv.appendChild(c);
       cols.appendChild(teamDiv);
